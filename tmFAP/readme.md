@@ -18,22 +18,22 @@ This script converts water-soluble proteins to transmembrane proteins with minim
 
 ```
 python hal_tmspan.py \
-        --pdb_in $pdb_in \
-        --soft_iters $soft_iters \
-        --hard_iters $hard_iters \
-        --wt_seq $wt_seq \
-        --output $output \
-        --data_dir $data_dir \
-        --num_recycles $num_recycles \
-        --non_TM_res_list $non_TM_res_list \
-        --motif $motif \
-        --chains $chains    \
-        --RK_ring_res_list $RK_ring_res_list \
-        --RK_upweight $RK_upweight      \
-        --DE_ring_res_list $DE_ring_res_list \
-        --DE_upweight $DE_upweight      \
-        --extra_loop $extra_loop \
-        --intra_loop $intra_loop \
+        --pdb_in            $pdb_in \
+        --soft_iters        $soft_iters \
+        --hard_iters        $hard_iters \
+        --wt_seq            $wt_seq \
+        --output            $output \
+        --data_dir          $data_dir \
+        --num_recycles      $num_recycles \
+        --non_TM_res_list   $non_TM_res_list \
+        --motif             $motif \
+        --chains            $chains    \
+        --RK_ring_res_list  $RK_ring_res_list \
+        --RK_upweight       $RK_upweight      \
+        --DE_ring_res_list  $DE_ring_res_list \
+        --DE_upweight       $DE_upweight      \
+        --extra_loop        $extra_loop \
+        --intra_loop        $intra_loop \
         --use_multimer 
 ```
 ### input and initialization
@@ -95,14 +95,14 @@ python hal_tmFAPs.py \
 
 Runnning this script requires the output pdb and the TMspan definition (residues indices for each region) from the initialization step.
 
-- `$pdb_in`                 - the initialized pdb  
-- `$soft_iters`             - number of steps for relaxed sequence-space design  
-- `$hard_iters`             - number of steps for one-hot sequence optimization  
-- `$wt_seq`                 - fasta sequence of $pdb_in e.g. "DEERLKEILFFLLLIIIFVVFLLIVHYKFLEEFKEKNV"  
-- `$rmsd`                   - weights for rmsd loss  
-- `$motif`                  - residue indices of pocket residues (used for pocket deviation loss calculation) e.g. "15-16,19,23,51,54-55,58,62,65,100,103,106-107,110,114,135,138-139,142,145-146,149"  
-- `$wy_ring_res_list`       - string of residue indices of WY ring residues. e.g. '27,28,50,52,111,112'  
-- `$rk_ring_res_list`       - string of residue indices of RK ring residues  
-- `$fix_res_list`           - string of residue indices of non-TMspan residues  
+- `pdb_in`                 - the initialized pdb  
+- `soft_iters`             - number of steps for relaxed sequence-space design  
+- `hard_iters`             - number of steps for one-hot sequence optimization  
+- `wt_seq`                 - fasta sequence of $pdb_in e.g. "DEERLKEILFFLLLIIIFVVFLLIVHYKFLEEFKEKNV"  
+- `rmsd`                   - weights for rmsd loss  
+- `motif`                  - residue indices of pocket residues (used for pocket deviation loss calculation) e.g. "15-16,19,23,51,54-55,58,62,65,100,103,106-107,110,114,135,138-139,142,145-146,149"  
+- `wy_ring_res_list`       - string of residue indices of WY ring residues. e.g. '27,28,50,52,111,112'  
+- `rk_ring_res_list`       - string of residue indices of RK ring residues  
+- `fix_res_list`           - string of residue indices of non-TMspan residues  
 
 
