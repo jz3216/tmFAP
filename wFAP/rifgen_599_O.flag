@@ -1,0 +1,73 @@
+# target and params here
+-rifgen::rif_type RotScoreReq
+#-rifgen:target ./params/HBC_O_p.pdb
+
+# names of output file and directory
+# change the rifgen_hbi and outfile to whatever is appropriate
+#-rifgen:outdir         ./rif/rifgen_HBC_O
+-rifgen:data_cache_dir $cache_path
+-rifgen:outfile 599_O_sca1.2_hb30_resl0.125.rif.gz
+
+-rifgen:apores         # apolar residue types
+#-rifgen:apores           # apolar residue types
+-rifgen:donres TYR TRP SER THR HIS GLN ASN HBC# donor residue types
+#-rifgen:donres SER THR TYR GLN ASN HIS TRP # donor residue types
+-rifgen:accres HBC ASP GLU                      # acceptor residue types
+
+# options for dumping pdbs condaining a small fraction of the RIF residues for inspection
+-rifgen:rif_hbond_dump_fraction  0.0001
+-rifgen:rif_apo_dump_fraction    0.00001
+
+# mutiplier for default hydrophobic residue score cut
+# this will largely determine how long rif generation takes and
+# how large the resulting rif is. lowering this number will cause
+# more possible hydrophobic interactions to be found, but will make
+# the rif bigger and make the search take longer. if you don't care
+# much about hydrophobic interactions, or only want a few good ones
+# raise this number to maybe 1.2 (fine to play with it) OR if you 
+# aren't getting good hydrophobic packing, lower it to maybe 0.8 or 0.7.
+-rifgen:score_cut_adjust 1.2
+
+-rifgen:score_threshold -0.5       # max acceptable score to go in rif
+-rifgen:hbond_weight 2           # max score per-hbond
+-rifgen:upweight_multi_hbond 0   # extra score factor for bidentate hbonds
+
+# params for super-fussy hbonder search
+
+-rifgen:tip_tol_deg         30   # hbonds off-ideal by this much angle
+-rifgen:rot_samp_resl        3.75  # angular sampling covering radius
+
+-hbond_cart_sample_hack_range 0.50  # cart search for hbonders up to this far away
+-hbond_cart_sample_hack_resl  0.125 # cart search for hbonders at this resl
+
+-hash_cart_resl    0.7     # main rif hash table cart resolution
+-hash_angle_resl  14.0     # main rif hash table angle resolution
+
+
+-rifgen::rf_oversample 2                    # number of samples per base-grid cell
+-rifgen::rosetta_field_resl 0.125           # base resolution of energy grids
+#-rifgen::search_resolutions 3.0 1.5 0.75 0.375
+#-rifgen::search_resolutions 4.0 2.0 1.0 0.5 # apo residue position 6D search resls
+-rifgen::search_resolutions 3.0 1.5 0.75 # apo residue position 6D search resls
+
+
+# probably don't change this stuff
+
+-rif_accum_scratch_size_M 24000 # 250gb, jojo only!
+
+-rifgen:beam_size_M 10000.0
+-rifgen:hash_preallocate_mult 0.125
+-rifgen:max_rf_bounding_ratio 4.0
+
+
+-rifgen:extra_rotamers 1          # actually ex1 ex2 
+-rifgen:extra_rif_rotamers true       # kinda like ex2
+
+-add_orbitals
+-renumber_pdb
+
+-rifgen:hash_cart_resls   16.0   8.0   4.0   2.0   1.0
+-rifgen:hash_cart_bounds   512   512   512   512   512
+-rifgen:lever_bounds      16.0   8.0   4.0   2.0   1.0
+-rifgen:hash_ang_resls     38.8  24.4  17.2  13.6  11.8 # yes worky worky
+-rifgen:lever_radii        23.6 18.785501 13.324600  8.425850  4.855575

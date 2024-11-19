@@ -1,0 +1,105 @@
+########################### what you need for docking ###########################
+# Fill this in with the output from the log file of RifGen
+-rif_dock:target_pdb        
+-in:file:extra_res_fa           
+-rif_dock:target_rf_resl    
+-rif_dock:target_rf_cache       
+-rif_dock:target_bounding_xmaps 
+-rif_dock:target_bounding_xmaps 
+-rif_dock:target_bounding_xmaps
+-rif_dock:target_bounding_xmaps 
+-rif_dock:target_bounding_xmaps 
+-rif_dock:target_rif 
+-rif_dock:target_donors         
+-rif_dock:target_acceptors     
+-rif_dock:extra_rotamers       
+-rif_dock:extra_rif_rotamers    
+-rif_dock:rot_spec_fname     
+
+#### this is where the output will go, and how much
+-rif_dock:dokfile conf.dok
+
+-rif_dock:n_pdb_out 999 # max number of output pdbs. 20 for debugging
+-rif_dock:align_output_to_scaffold true
+#-rif_dock:target_tag conf01 # optional tag to add to all outputs
+#
+-rif_dock:global_score_cut  -6.0 
+-rif_dock:cluster_score_cut -6.0
+-rif_dock:redundancy_filter_mag 3
+-rif_dock::keep_top_clusters_frac 0.8
+
+-rif_dock:search_diameter 100
+-rif_dock:favorable_1body_multiplier 1
+-rif_dock:favorable_1body_multiplier_cutoff 0
+-rif_dock:favorable_2body_multiplier 1
+
+-rif_dock:replace_orig_scaffold_res true
+############# overall time and resolution of search ##################
+-beam_size_M 100 
+-hsearch_scale_factor 1.2
+-beta
+-score:weights beta #beta_soft
+-add_orbitals false
+
+################ stuff related to picking designable and fixed positions #################
+-scaffold_res_use_best_guess 1
+-rif_dock::dont_use_scaffold_loops false
+-rif_dock:scaffold_to_ala true
+-rif_dock:scaffold_to_ala_selonly false
+-rif_dock:replace_all_with_ala_1bre true
+-rif_dock:upweight_iface 2.0
+
+################ rif packing options, probably don't change
+-hack_pack true
+-rif_dock:pack_n_iters    2
+-rif_dock:pack_iter_mult  2.0
+-rif_dock:hack_pack_frac  1
+-rif_dock:packing_use_rif_rotamers        true
+-rif_dock:extra_rotamers                  false
+-rif_dock:always_available_rotamers_level 0
+
+-rif_dock::rf_resl 0.25
+-rif_dock::rf_oversample 2
+-rif_dock:use_scaffold_bounding_grids 0
+
+################## rosetta re-scoring / min stuff #####################
+
+-rif_dock:rosetta_score_rifres_rifres_weight   0.6
+-rif_dock:rosetta_score_rifres_scaffold_weight 0.4
+-rif_dock:ignore_rifres_if_worse_than 0 #-1    #filter individual rifres
+
+#### score cut for the rosetta "score," which is kinda a ddg, but with hbond weighs highern
+-rif_dock:rosetta_score_cut -10.0
+-rif_dock:rosetta_score_fraction 0
+-rif_dock:rosetta_min_fraction 0
+-rif_dock:rosetta_min_scaffoldbb false
+-rif_dock:rosetta_min_targetbb   false
+-rif_dock:rosetta_hard_min true
+-rif_dock:rosetta_score_each_seeding_at_least 1
+-rif_dock:rosetta_min_at_least 50
+-rif_dock:rosetta_score_at_most  3000
+-rif_dock::rosetta_min_at_most 300
+
+#### details for how twobody rotamer energies are computed and stored, don't change
+-rif_dock:rotrf_resl   0.25
+-rif_dock:rotrf_spread 0.0
+-rif_dock:rotrf_scale_atr 1.0
+-rif_dock:cache_scaffold_data true
+
+#### options to favor existing scaffold residues
+-add_native_scaffold_rots_when_packing 0 # 1
+-bonus_to_native_scaffold_res          0 # -0.5
+-rif_dock:pdb_info_pikaa false 
+
+###################### Hotspot configuration #################################
+-rif_dock:num_hotspots 1000
+-require_satisfaction 2
+-requirement_groups 1:1 1:3 
+-require_n_rifres 2 
+-CB_too_close_penalty 9 
+-CB_too_close_resl 0.1
+-CB_too_close_max_target_res_atom_idx 1000 
+-detect_disulf 0
+
+-rif_dock:target_rf_oversample 2
+-mute core.scoring.ScoreFunctionFactory

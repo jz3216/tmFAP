@@ -1,0 +1,58 @@
+<ROSETTASCRIPTS>
+   
+    <SCOREFXNS>
+        <ScoreFunction name="beta" weights="beta_genpot" />
+        <ScoreFunction name="sfn_fa_rep" weights="empty">
+            <Reweight scoretype="fa_rep" weight="1" />
+        </ScoreFunction>
+        <ScoreFunction name="sfx_symm" weights="beta_genpot" symmetric="1" />
+    </SCOREFXNS>
+    
+    
+    
+    <RESIDUE_SELECTORS>
+    </RESIDUE_SELECTORS>
+    
+    
+    
+    <TASKOPERATIONS>
+        RestrictToRepacking name="repackonly" />
+    </TASKOPERATIONS>
+    
+    
+    
+    <FILTERS>
+        ScoreType name="total_score" scorefxn="beta" threshold="0" confidence="0" />
+        ScoreType name="motif_score" scorefxn="sfn_motif" threshold="0" confidence="0" />
+        ScoreType name="motif_degree_score" scorefxn="sfn_motif_degree" threshold="0" confidence="0" />
+        <ScoreType name="fa_rep_score" scorefxn="sfn_fa_rep" threshold="0" confidence="0" />
+    </FILTERS>
+    
+    
+    
+    <MOVERS>
+        <BundleGridSampler name="bgs1" use_degrees="1" helix_length="35" scorefxn="beta" crick_params_file="alpha_helix" set_bondlengths="1" set_bondangles="1" set_dihedrals="1" dump_pdbs="0" max_samples="1" nstruct_mode="0">
+            <Helix delta_omega0="0" delta_omega1="%%dw1_1%%" r0="%%r0_1%%" z1_offset="0" omega0="-2.4"/>
+            <Helix delta_omega0="90" invert="1" delta_omega1="%%dw1_2%%" r0="%%r0_2%%" z1_offset="%%zoff%%"  omega0_copies_helix="1"/>
+            Helix delta_omega0="180" delta_omega1="%%dw1_3%%" r0="%%r0_3%%" z1_offset="0" omega0_copies_helix="1"/>
+            Helix delta_omega0="270" invert="1" delta_omega1="%%dw1_4%%" r0="%%r0_4%%" z1_offset="3"  omega0_copies_helix="1"/>
+        </BundleGridSampler>
+        <SetupForSymmetry name="add_symm" definition="input/C2_Z.sym" />
+    </MOVERS>
+    
+    
+    
+    <APPLY_TO_POSE>
+    </APPLY_TO_POSE>
+    
+    
+    
+    <PROTOCOLS>
+        <Add mover="bgs1" />
+        <Add mover="add_symm" />
+        Add filter="motif_score" />
+        Add filter="motif_degree_score" />
+        <Add filter="fa_rep_score" />
+        Add filter="total_score" />
+    </PROTOCOLS>
+</ROSETTASCRIPTS>

@@ -1,0 +1,4 @@
+-beta 
+-jd2:failed_job_exception false 
+-holes:dalphaball $ROSETTA/external/DAlpahBall/DAlphaBall.gcc
+-overwrite

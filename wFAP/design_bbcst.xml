@@ -1,0 +1,194 @@
+<ROSETTASCRIPTS>
+<SCOREFXNS>
+    <ScoreFunction name="beta" weights="beta" />
+    <ScoreFunction name="beta_cart" weights="beta_cart" />
+    <ScoreFunction name="beta_cart_cst" weights="beta_cart" >
+        <Reweight scoretype="atom_pair_constraint" weight="1" />
+    </ScoreFunction>
+    <ScoreFunction name="beta_cst" weights="beta_cst" >
+        <Reweight scoretype="atom_pair_constraint" weight="1" />
+    </ScoreFunction>
+    <ScoreFunction name="beta_aacomp" weights="beta" >
+        <Reweight scoretype="aa_composition" weight="1" />
+    </ScoreFunction>
+
+    <ScoreFunction name="beta_bbcst_aacomp" weights="beta" >
+        <Reweight scoretype="coordinate_constraint" weight="1.0"/>
+        <Reweight scoretype="aa_composition" weight="1" />
+    </ScoreFunction>
+</SCOREFXNS>
+
+<RESIDUE_SELECTORS>
+    <Chain name="bb" chains="A"/>
+    <Chain name="hbc" chains="B"/>
+    
+    <Layer name="surface" select_core="false" select_boundary="false" select_surface="true" use_sidechain_neighbors="1" core_cutoff="4"/>
+    <Layer name="boundary" select_core="false" select_boundary="true" select_surface="false" use_sidechain_neighbors="1" core_cutoff="4"/>
+    <Layer name="core" select_core="true" select_boundary="false" select_surface="false" use_sidechain_neighbors="1" core_cutoff="4"/>
+    <SecondaryStructure name="entire_loop" overlap="0" minH="3" minE="2" include_terminal_loops="true" use_dssp="true" ss="L"/>
+    <SecondaryStructure name="entire_helix" overlap="0" minH="3" minE="2" include_terminal_loops="false" use_dssp="true" ss="H"/>
+    <And name="helix_cap" selectors="entire_loop">
+        <PrimarySequenceNeighborhood lower="1" upper="0" selector="entire_helix"/>
+    </And>
+    <And name="helix_start" selectors="entire_helix">
+        <PrimarySequenceNeighborhood lower="0" upper="1" selector="helix_cap"/>
+    </And>
+    <And name="helix" selectors="entire_helix">
+        <Not selector="helix_start"/>
+    </And>
+    <And name="loop" selectors="entire_loop">
+        <Not selector="helix_cap"/>
+    </And>
+
+    <ResidueName name="aro" residue_names="TYR,TRP,PHE" />
+
+    
+    
+    <CloseContact name="pocket" residue_selector="hbc" contact_threshold="10"/>
+    <Not name="nonpocket" selector="pocket" />
+    
+    <ResiduePDBInfoHasLabel name="hbnet_res" property="HBNet" />
+    
+</RESIDUE_SELECTORS>
+<TASKOPERATIONS>
+    <LimitAromaChi2 name="aroChi"/>
+    <InitializeFromCommandline name="initcmd"/>
+    <IncludeCurrent name="includeCurrent"/>
+    <RestrictToRepacking name="repack" />
+    
+    <OperateOnResidueSubset name="repack_loop" selector="loop" >
+        <RestrictToRepackingRLT />
+    </OperateOnResidueSubset>
+    <OperateOnResidueSubset name="repack_hbnet" selector="hbnet_res" >
+        <RestrictToRepackingRLT />
+    </OperateOnResidueSubset>
+    
+    <OperateOnResidueSubset name="fix_hbnet" selector="hbnet_res" >
+        <PreventRepackingRLT/>
+    </OperateOnResidueSubset>
+    
+    <OperateOnResidueSubset name="repack_pocket" selector="pocket" >
+        <RestrictToRepackingRLT />
+    </OperateOnResidueSubset>
+    <OperateOnResidueSubset name="repack_nonpocket" selector="nonpocket" >
+        <RestrictToRepackingRLT />
+    </OperateOnResidueSubset>
+
+    <OperateOnResidueSubset name="repack_aro" selector="aro" >
+        <RestrictToRepackingRLT />
+    </OperateOnResidueSubset>
+    
+    DesignRestrictions name="layer_task" >
+        Action selector_logic="core" aas="VILSTAYF"/>
+        Action selector_logic="noncore" aas="RKDESTQNYAVIL"/>
+    /DesignRestrictions>
+
+    <ExtraRotamersGeneric name="ex1" ex1="1"/>
+    <ExtraRotamersGeneric name="ex1_ex2" ex1="1" ex2="1"/>
+    
+    <DesignRestrictions name="layer_task">
+        <Action selector_logic="surface AND helix_start"	aas="DEHKPQR"/>
+        <Action selector_logic="surface AND helix"		aas="EHKQR"/>
+        <Action selector_logic="surface AND loop"		aas="DEGHKNPQRST"/>
+        <Action selector_logic="boundary AND helix_start"	aas="ADEHIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundary AND helix"		aas="ADEHIKLMNQRSTVWY"/>
+        <Action selector_logic="boundary AND loop"		aas="ADEFGHIKLMNPQRSTVWY"/>
+        <Action selector_logic="core AND helix_start"		aas="AFILMPVY"/>
+        <Action selector_logic="core AND helix"			aas="AFILMVY"/>
+        <Action selector_logic="core AND loop"			aas="AFGILMPVY"/>
+        <Action selector_logic="helix_cap"			aas="DNST"/>
+    </DesignRestrictions>
+
+</TASKOPERATIONS>
+
+    <MOVERS>
+        <FastRelax name="frelax_all" task_operations="initcmd,aroChi,includeCurrent" scorefxn="beta" repeats="3" disable_design="true"/>
+    </MOVERS>
+
+
+<FILTERS>
+    <ResidueCount name="nres" />
+    <ScoreType name="totalscore" scorefxn="beta" threshold="999" confidence="0"/>
+    <LigInterfaceEnergy name="interfE" scorefxn="beta" energy_cutoff="-29" confidence="0"/>
+    <ShapeComplementarity name="SC" min_sc="0.7" min_interface="0" verbose="0" quick="0" jump="1" confidence="0"/>
+
+    <BuriedUnsatHbonds name="vbuns" residue_selector="bb" report_sc_heavy_atom_unsats="1" scorefxn="beta" ignore_surface_res="1" print_out_info_to_pdb="true" atomic_depth_selection="5.5" burial_cutoff="1000" use_ddG_style="0" burial_cutoff_apo="0.2" dalphaball_sasa="true" probe_radius="1.1" confidence="0" />
+    
+
+    <CalculatorFilter name="totalscore_res" equation="TOTALSCORE/NRES" confidence="0">
+            <Var name="TOTALSCORE" filter_name="totalscore" />
+            <Var name="NRES" filter_name="nres" />
+    </CalculatorFilter>
+
+    
+</FILTERS>
+
+
+
+ <MOVERS>
+    <AddCompositionConstraintMover name="add_all_comp" filename="%%aacom_file%%" selector="bb" />
+    <ClearCompositionConstraintsMover name="rmcomp" /> 
+
+    <AddConstraintsToCurrentConformationMover name="pocket_bbcst" use_distance_cst="0" coord_dev="1" CA_only="1" bound_width="0.1" residue_selector="pocket"/> 
+    <AddConstraintsToCurrentConformationMover name="nonpocket_bbcst" use_distance_cst="0" coord_dev="1" CA_only="1" bound_width="0.5" residue_selector="nonpocket"/> 
+    
+    <AddConstraints name="add_cst" >
+        <FileConstraintGenerator name="hbnet_res_cst" filename="%%cst_file%%" />
+    </AddConstraints>
+
+    <ClearConstraintsMover name="rm_cst" />
+    
+    
+    <PackRotamersMover name="pack_pocket" scorefxn="beta_bbcst_aacomp" task_operations="initcmd,includeCurrent,aroChi,layer_task,repack_hbnet,repack_aro,ex1_ex2,repack_nonpocket"/>  
+    
+    
+    <MinMover name="min_pocket_cart" scorefxn="beta_cart" type="lbfgs_armijo_nonmonotone" tolerance="0.0001" max_iter="2000" bb="1" chi="1" jump="1" cartesian="1">
+        <MoveMap name="min_bb" >
+            Jump number="1" setting="1" />
+            ResidueSelector selector="bb" chi="1" bb="1" bondangle="1" bondlength="1" />
+            <ResidueSelector selector="hbc" chi="0" bb="0" bondangle="0" bondlength="0" />
+        </MoveMap>
+    </MinMover>    
+        
+    <MinMover name="min_cart_all" scorefxn="beta_cart_cst" type="lbfgs_armijo_nonmonotone" tolerance="0.0001" max_iter="2000" chi="1" bb="1" bondangle="1" bondlength="1" jump="0" cartesian="1">
+        <MoveMap name="min_bb" >
+            Jump number="1" setting="1" />
+            ResidueSelector selector="bb" chi="1" bb="1" bondangle="1" bondlength="1" />
+            <ResidueSelector selector="hbc" chi="0" bb="0" bondangle="0" bondlength="0" />
+        </MoveMap>
+    </MinMover>
+    
+    
+    <ParsedProtocol name="design_pocket">
+        <Add mover="pack_pocket" />
+        <Add mover="min_cart_all" />
+    </ParsedProtocol>
+    
+        
+    <FastDesign name="fdesign" task_operations="initcmd,aroChi,includeCurrent,layer_task,fix_hbnet,repack_pocket,repack_aro" scorefxn="beta_bbcst_aacomp" repeats="1"/>
+    
+    
+    <ParsedProtocol name="1step">
+        <Add mover="add_all_comp" />
+        <Add mover="pocket_bbcst" />
+        <Add mover="nonpocket_bbcst" />
+        <Add mover="add_cst" />
+        <Add mover="design_pocket" />
+        <Add mover="fdesign" />
+        <Add mover="rm_cst" />
+    </ParsedProtocol>    
+    
+    
+</MOVERS>
+
+<PROTOCOLS>
+    <Add mover="1step" />
+    <Add mover="frelax_all" />
+
+    <Add filter_name="totalscore_res"/>
+    <Add filter_name="interfE" />
+    <Add filter_name="SC" />
+
+</PROTOCOLS>
+<OUTPUT />
+</ROSETTASCRIPTS>
